@@ -1,0 +1,53 @@
+{
+  "policiesNamespace": "selftest",
+  "schemaVersion": "1.0.0",
+  "kind": "linkThresholds",
+
+  "items": [
+    { "key": "a", "name": "A 型", "tier": 0 }
+  ],
+
+  "structures": [
+    { "key": "flat", "mode": "mesh", "adjacentOnly": false }
+  ],
+
+  "states": [
+    { "key": "green",  "min": 0.75 },
+    { "key": "yellow", "min": 0.45 },
+    { "key": "red",    "min": 0.0 }
+  ],
+
+  "hysteresis": { "riseMargin": 0.05, "fallMargin": 0.05, "confirmCount": 3, "minDwellMs": 0 },
+
+  "metrics": {
+    "window": { "windowMs": 1000, "maxSamples": 100 },
+    "items": [
+      { "key": "x", "ledgerKey": "x", "unit": "u", "direction": "higher", "min": 0, "max": 10, "weight": 0.5 },
+      { "key": "y", "ledgerKey": "y", "unit": "u", "direction": "lower",  "min": 0, "max": 10, "weight": 0.5 }
+    ]
+  },
+
+  "coverage": { "mode": "sum", "source": "x", "targetAreaKm2": 20 },
+
+  "meshProgress": {
+    "scale": 100,
+    "unit": "%",
+    "components": [ { "source": "linkUpRatio", "weight": 1.0 } ]
+  },
+
+  "evaluation": {
+    "stabilityKey": "stateMean",
+    "items": [
+      { "key": "stateMean", "weight": 1.0, "scale": { "min": 0, "max": 1 },
+        "terms": [ { "source": "stateScoreMean", "weight": 1.0 } ],
+        "requirement": { "metric": "stateScoreMean", "op": ">=", "limit": 0.5 } },
+      { "key": "metricMix", "weight": 1.0, "scale": { "min": 0, "max": 1 },
+        "terms": [ { "source": "metricScore.x", "weight": 0.5 },
+                   { "source": "metricScore.y", "weight": 0.5 } ] },
+      { "key": "coverage", "weight": 1.0, "scale": { "min": 0, "max": 1 },
+        "terms": [ { "source": "coverageRatio", "weight": 1.0 } ] },
+      { "key": "progress", "weight": 1.0, "scale": { "min": 0, "max": 100 },
+        "terms": [ { "source": "meshProgress", "weight": 1.0 } ] }
+    ]
+  }
+}

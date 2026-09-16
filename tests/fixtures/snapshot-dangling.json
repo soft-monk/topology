@@ -1,0 +1,14 @@
+{
+  "topologyId": "snap-dangling",
+  "structureKey": "flat",
+  "policyVersion": "selftest:1.0.0:0000000000000000",
+  "nodes": [
+    { "id": "n1", "typeKey": "a", "name": "N1", "hasPosition": true, "lng": 116.2, "lat": 39.9 },
+    { "id": "n2", "typeKey": "b", "name": "N2", "hasPosition": false }
+  ],
+  "edges": [
+    { "id": "e1", "from": "n1", "to": "n2" },
+    { "id": "e-dangling", "from": "n1", "to": "nX" },
+    { "id": "e-self", "from": "n2", "to": "n2" }
+  ]
+}

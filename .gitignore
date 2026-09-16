@@ -1,7 +1,14 @@
 # 构建产物
 build/
+build-*/
 dist/
 node_modules/
+CMakeCache.txt
+CMakeFiles/
+*.exe
+*.obj
+*.lib
+*.pdb
 
 # 编辑器
 .vscode/

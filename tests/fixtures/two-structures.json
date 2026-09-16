@@ -1,0 +1,45 @@
+{
+  "policiesNamespace": "selftest",
+  "schemaVersion": "1.0.0",
+  "kind": "linkThresholds",
+
+  "items": [
+    { "key": "tierTop",   "name": "云端算力中心", "tier": 0, "graphic": "node" },
+    { "key": "tierMid",   "name": "边缘节点",     "tier": 1, "graphic": "node" },
+    { "key": "tierFront", "name": "前沿指挥节点", "tier": 1, "graphic": "node" },
+    { "key": "tierEnd",   "name": "执行集群",     "tier": 2, "graphic": "cluster" }
+  ],
+
+  "structures": [
+    { "key": "flat",  "mode": "mesh",    "adjacentOnly": false },
+    { "key": "three", "mode": "layered", "adjacentOnly": true,
+      "layers": [
+        { "key": "l0", "name": "上层", "tier": 0 },
+        { "key": "l1", "name": "中层", "tier": 1 },
+        { "key": "l2", "name": "下层", "tier": 2 }
+      ] }
+  ],
+
+  "states": [
+    { "key": "green",  "min": 0.75 },
+    { "key": "yellow", "min": 0.45 },
+    { "key": "red",    "min": 0.0 }
+  ],
+
+  "hysteresis": { "riseMargin": 0.05, "fallMargin": 0.05, "confirmCount": 3, "minDwellMs": 1000 },
+
+  "metrics": {
+    "window": { "windowMs": 1000, "maxSamples": 100 },
+    "items": [
+      { "key": "level", "ledgerKey": "level", "unit": "", "direction": "higher", "min": 0, "max": 1, "weight": 1.0 }
+    ]
+  },
+
+  "evaluation": {
+    "stabilityKey": "stability",
+    "items": [
+      { "key": "stability", "weight": 1.0, "scale": { "min": 0, "max": 1 },
+        "terms": [ { "source": "stateScoreMean", "weight": 1.0 } ] }
+    ]
+  }
+}

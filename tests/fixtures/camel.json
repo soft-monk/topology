@@ -1,0 +1,42 @@
+{
+  "policiesNamespace": "selftest",
+  "schemaVersion": "1.0.0",
+  "kind": "linkThresholds",
+
+  "items": [
+    { "key": "a", "name": "A 型", "tier": 0 },
+    { "key": "b", "name": "B 型", "tier": 1 }
+  ],
+
+  "structures": [
+    { "key": "flat", "mode": "mesh", "adjacentOnly": false }
+  ],
+
+  "states": [
+    { "key": "green",  "min": 0.75 },
+    { "key": "yellow", "min": 0.45 },
+    { "key": "red",    "min": 0.0 }
+  ],
+
+  "hysteresis": { "riseMargin": 0.05, "fallMargin": 0.05, "confirmCount": 3, "minDwellMs": 0 },
+
+  "metrics": {
+    "window": { "windowMs": 1000, "maxSamples": 600 },
+    "items": [
+      { "key": "signal",        "ledgerKey": "signal", "unit": "dBm",   "direction": "higher", "min": -120, "max": 0,   "weight": 0.3,
+        "valueMap": { "strong": -50, "medium": -75, "weak": -95 } },
+      { "key": "bandwidthMbps", "unit": "Mbps",  "direction": "higher", "min": 0,    "max": 200, "weight": 0.3 },
+      { "key": "latencyMs",     "unit": "ms",    "direction": "lower",  "min": 0,    "max": 500, "weight": 0.2 },
+      { "key": "lossRate",      "unit": "ratio", "direction": "lower",  "min": 0,    "max": 1,   "weight": 0.2 },
+      { "key": "coverageKm2",   "unit": "km2",   "direction": "higher", "min": 0,    "max": 400, "weight": 0.0 }
+    ]
+  },
+
+  "evaluation": {
+    "stabilityKey": "stability",
+    "items": [
+      { "key": "stability", "weight": 1.0, "scale": { "min": 0, "max": 1 },
+        "terms": [ { "source": "stateScoreMean", "weight": 1.0 } ] }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "policiesNamespace": "selftest",
+  "schemaVersion": "1.1.0",
+  "kind": "linkThresholds",
+  "futureSection": { "note": "unknown top-level section must be ignored and counted (CTR-PL-03)" },
+
+  "items": [
+    { "key": "a", "name": "A 型", "tier": 0, "futureField": 7 }
+  ],
+
+  "structures": [
+    { "key": "flat", "mode": "mesh", "adjacentOnly": false }
+  ],
+
+  "states": [
+    { "key": "green",  "min": 0.6 },
+    { "key": "yellow", "min": 0.3 },
+    { "key": "red",    "min": 0.0 }
+  ],
+
+  "hysteresis": { "riseMargin": 0.1, "fallMargin": 0.1, "confirmCount": 2, "minDwellMs": 500 },
+
+  "metrics": {
+    "window": { "windowMs": 2000, "maxSamples": 50 },
+    "items": [
+      { "key": "level", "direction": "higher", "min": 0, "max": 1, "weight": 1.0, "futureField": "x" }
+    ]
+  },
+
+  "evaluation": {
+    "stabilityKey": "stability",
+    "items": [
+      { "key": "stability", "weight": 1.0, "terms": [ { "source": "stateScoreMean", "weight": 1.0 } ] }
+    ]
+  }
+}

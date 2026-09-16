@@ -1,0 +1,37 @@
+{
+  "policiesNamespace": "selftest",
+  "schemaVersion": "1.0.0",
+  "kind": "linkThresholds",
+
+  "items": [
+    { "key": "a", "name": "A 型", "tier": 0 },
+    { "key": "b", "name": "B 型", "tier": 1 }
+  ],
+
+  "structures": [
+    { "key": "flat", "mode": "mesh", "adjacentOnly": false }
+  ],
+
+  "states": [
+    { "key": "green",  "min": 0.75 },
+    { "key": "yellow", "min": 0.45 },
+    { "key": "red",    "min": 0.0 }
+  ],
+
+  "hysteresis": { "riseMargin": 0.05, "fallMargin": 0.05, "confirmCount": 3, "minDwellMs": 0 },
+
+  "metrics": {
+    "window": { "windowMs": 1000, "maxSamples": 600 },
+    "items": [
+      { "key": "level", "ledgerKey": "level", "unit": "", "direction": "higher", "min": 0, "max": 1, "weight": 1.0 }
+    ]
+  },
+
+  "evaluation": {
+    "stabilityKey": "stability",
+    "items": [
+      { "key": "stability", "weight": 1.0, "scale": { "min": 0, "max": 1 },
+        "terms": [ { "source": "stateScoreMean", "weight": 1.0 } ] }
+    ]
+  }
+}

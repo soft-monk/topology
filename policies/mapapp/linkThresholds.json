@@ -1,0 +1,134 @@
+{
+  "policiesNamespace": "mapapp",
+  "schemaVersion": "1.0.0",
+  "kind": "linkThresholds",
+
+  "items": [
+    { "key": "cloud",   "name": "云端算力中心", "tier": 0, "graphic": "node" },
+    { "key": "edge",    "name": "边缘节点",     "tier": 1, "graphic": "node" },
+    { "key": "forward", "name": "前沿指挥节点", "tier": 1, "graphic": "node" },
+    { "key": "cluster", "name": "执行集群",     "tier": 2, "graphic": "cluster" }
+  ],
+
+  "structures": [
+    {
+      "key": "mesh",
+      "mode": "mesh",
+      "layers": [],
+      "adjacentOnly": false
+    },
+    {
+      "key": "layered",
+      "mode": "layered",
+      "adjacentOnly": true,
+      "layers": [
+        { "key": "l0", "name": "顶层", "tier": 0 },
+        { "key": "l1", "name": "中间层", "tier": 1 },
+        { "key": "l2", "name": "末端层", "tier": 2 }
+      ]
+    }
+  ],
+
+  "states": [
+    { "key": "green",  "min": 0.75 },
+    { "key": "yellow", "min": 0.45 },
+    { "key": "red",    "min": 0.0 }
+  ],
+
+  "hysteresis": {
+    "riseMargin": 0.05,
+    "fallMargin": 0.05,
+    "confirmCount": 3,
+    "minDwellMs": 5000
+  },
+
+  "metrics": {
+    "window": { "windowMs": 1000, "maxSamples": 600 },
+    "items": [
+      { "key": "signal",         "ledgerKey": "signal",          "unit": "dBm",   "direction": "higher", "min": -120, "max": 0,   "weight": 0.25,
+        "valueMap": { "strong": -50, "medium": -75, "weak": -95 } },
+      { "key": "bandwidthMbps",  "ledgerKey": "bandwidth_mbps",  "unit": "Mbps",  "direction": "higher", "min": 0,    "max": 200, "weight": 0.25 },
+      { "key": "latencyMs",      "ledgerKey": "latency_ms",      "unit": "ms",    "direction": "lower",  "min": 0,    "max": 500, "weight": 0.25 },
+      { "key": "lossRate",       "ledgerKey": "loss_rate",       "unit": "ratio", "direction": "lower",  "min": 0,    "max": 1,   "weight": 0.15 },
+      { "key": "coverageKm2",    "ledgerKey": "coverage_km2",    "unit": "km2",   "direction": "higher", "min": 0,    "max": 400, "weight": 0.10 },
+      { "key": "meshProgress",   "ledgerKey": "mesh_progress",   "unit": "%",     "direction": "higher", "min": 0,    "max": 100, "weight": 0.0 },
+      { "key": "nodeLoad",       "ledgerKey": "node_load",       "unit": "ratio", "direction": "lower",  "min": 0,    "max": 1,   "weight": 0.0 },
+      { "key": "cacheAvailable", "ledgerKey": "cache_available", "unit": "GB",    "direction": "higher", "min": 0,    "max": 64,  "weight": 0.0 },
+      { "key": "cacheTotal",     "ledgerKey": "cache_total",     "unit": "GB",    "direction": "higher", "min": 0,    "max": 64,  "weight": 0.0 }
+    ]
+  },
+
+  "coverage": { "mode": "sum", "source": "coverageKm2", "targetAreaKm2": 1200 },
+
+  "meshProgress": {
+    "scale": 100,
+    "unit": "%",
+    "components": [
+      { "source": "linkUpRatio",    "weight": 0.5 },
+      { "source": "stateScoreMean", "weight": 0.5 }
+    ]
+  },
+
+  "aggregation": { "node": "worst" },
+
+  "evaluation": {
+    "stabilityKey": "stability",
+    "items": [
+      {
+        "key": "stability",
+        "weight": 0.35,
+        "scale": { "min": 0, "max": 1 },
+        "terms": [
+          { "source": "stateScoreMean", "weight": 0.4 },
+          { "source": "stateStability", "weight": 0.3 },
+          { "source": "worstScore",     "weight": 0.3 }
+        ],
+        "requirement": { "metric": "stateScoreMean", "op": ">=", "limit": 0.5 }
+      },
+      {
+        "key": "coverage",
+        "weight": 0.25,
+        "terms": [ { "source": "coverageRatio", "weight": 1.0 } ],
+        "requirement": { "metric": "coverageRatio", "op": ">=", "limit": 0.3 }
+      },
+      {
+        "key": "cooperation",
+        "weight": 0.2,
+        "terms": [
+          { "source": "linkUpRatio",       "weight": 0.5 },
+          { "source": "nodeCoveredRatio",  "weight": 0.5 }
+        ],
+        "requirement": { "metric": "linkUpRatio", "op": ">=", "limit": 0.5 }
+      },
+      {
+        "key": "interference",
+        "weight": 0.2,
+        "terms": [
+          { "source": "metricScore.signal",   "weight": 0.5 },
+          { "source": "metricScore.lossRate", "weight": 0.5 }
+        ],
+        "requirement": { "metric": "metricScore.lossRate", "op": ">=", "limit": 0.6 }
+      }
+    ]
+  },
+
+  "optimization": {
+    "objective": { "kind": "evaluationWeighted", "items": [ "stability", "coverage", "cooperation", "interference" ] },
+    "minImprovement": 0.005,
+    "maxIterations": 64,
+    "maxMs": 20,
+    "parameters": [
+      { "metric": "bandwidthMbps", "min": 0,    "max": 200, "step": 10 },
+      { "metric": "latencyMs",     "min": 0,    "max": 500, "step": 10 },
+      { "metric": "signal",        "min": -120, "max": 0,   "step": 5 },
+      { "metric": "lossRate",      "min": 0,    "max": 1,   "step": 0.05 },
+      { "metric": "coverageKm2",   "min": 0,    "max": 400, "step": 20 }
+    ]
+  },
+
+  "curves": {
+    "granularityMs": 1000,
+    "maxPoints": 120,
+    "metrics": [ "bandwidthMbps", "latencyMs", "signal", "lossRate" ]
+  }
+}
